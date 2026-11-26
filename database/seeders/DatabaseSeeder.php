@@ -19,189 +19,196 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user
-        $admin = User::updateOrCreate(
-            ['email' => 'admin@kalixrental.ph'],
-            [
+        // Admin user (only seed if no users exist so admin password edits persist)
+        $admin = User::first();
+        if (! $admin) {
+            $admin = User::create([
                 'name' => 'KLX Admin',
+                'email' => 'admin@kalixrental.ph',
                 'password' => Hash::make('password'),
-            ]
-        );
+            ]);
+        }
 
         // Payment settings (Percentage 50% default, Fixed 5000 option, 6% credit card fee)
         PaymentSetting::current();
 
-        // Default Payment Methods
-        $defaultMethods = [
-            [
-                'code' => 'gcash',
-                'name' => 'GCash',
-                'account_name' => 'KLX Affordable Cars for Rent',
-                'account_number' => '0907-883-8861',
-                'sort_order' => 1,
-            ],
-            [
-                'code' => 'palawanpay',
-                'name' => 'PalawanPay',
-                'account_name' => 'KLX Affordable Cars for Rent',
-                'account_number' => '0907-883-8861',
-                'sort_order' => 2,
-            ],
-            [
-                'code' => 'bank_transfer',
-                'name' => 'Bank Transfer (BDO / BPI)',
-                'account_name' => 'KLX Affordable Cars for Rent',
-                'account_number' => '0012-3456-7890',
-                'sort_order' => 3,
-            ],
-        ];
-        foreach ($defaultMethods as $m) {
-            PaymentMethod::firstOrCreate(['code' => $m['code']], $m + ['is_enabled' => true]);
+        // Default Payment Methods (only seed if empty)
+        if (PaymentMethod::count() === 0) {
+            $defaultMethods = [
+                [
+                    'code' => 'gcash',
+                    'name' => 'GCash',
+                    'account_name' => 'KLX Affordable Cars for Rent',
+                    'account_number' => '0907-883-8861',
+                    'sort_order' => 1,
+                ],
+                [
+                    'code' => 'palawanpay',
+                    'name' => 'PalawanPay',
+                    'account_name' => 'KLX Affordable Cars for Rent',
+                    'account_number' => '0907-883-8861',
+                    'sort_order' => 2,
+                ],
+                [
+                    'code' => 'bank_transfer',
+                    'name' => 'Bank Transfer (BDO / BPI)',
+                    'account_name' => 'KLX Affordable Cars for Rent',
+                    'account_number' => '0012-3456-7890',
+                    'sort_order' => 3,
+                ],
+            ];
+            foreach ($defaultMethods as $m) {
+                PaymentMethod::create($m + ['is_enabled' => true]);
+            }
         }
 
-        // Add-ons
-        $addons = [
-            [
-                'name' => 'Professional Driver',
-                'description' => 'Experienced Palawan local driver (8 hrs/day, excludes driver meals/accommodation for out-of-town).',
-                'pricing_type' => 'per_day',
-                'price' => 1000.00,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Child Safety Seat',
-                'description' => 'ISOFIX/belt-compatible toddler or infant car seat.',
-                'pricing_type' => 'per_day',
-                'price' => 250.00,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Airport / Hotel Delivery & Pickup',
-                'description' => 'Convenient vehicle drop-off and pickup within Puerto Princesa City proper.',
-                'pricing_type' => 'flat',
-                'price' => 500.00,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'El Nido / San Vicente Out-of-Town Permit',
-                'description' => 'Extended northern Palawan travel clearance & roadside support.',
-                'pricing_type' => 'flat',
-                'price' => 1500.00,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Roof Rack / Cargo Carrier',
-                'description' => 'Extra luggage capacity for surfboards or group travel.',
-                'pricing_type' => 'per_day',
-                'price' => 300.00,
-                'is_active' => true,
-            ],
-        ];
+        // Add-ons (only seed if empty)
+        if (Addon::count() === 0) {
+            $addons = [
+                [
+                    'name' => 'Professional Driver',
+                    'description' => 'Experienced Palawan local driver (8 hrs/day, excludes driver meals/accommodation for out-of-town).',
+                    'pricing_type' => 'per_day',
+                    'price' => 1000.00,
+                    'is_active' => true,
+                ],
+                [
+                    'name' => 'Child Safety Seat',
+                    'description' => 'ISOFIX/belt-compatible toddler or infant car seat.',
+                    'pricing_type' => 'per_day',
+                    'price' => 250.00,
+                    'is_active' => true,
+                ],
+                [
+                    'name' => 'Airport / Hotel Delivery & Pickup',
+                    'description' => 'Convenient vehicle drop-off and pickup within Puerto Princesa City proper.',
+                    'pricing_type' => 'flat',
+                    'price' => 500.00,
+                    'is_active' => true,
+                ],
+                [
+                    'name' => 'El Nido / San Vicente Out-of-Town Permit',
+                    'description' => 'Extended northern Palawan travel clearance & roadside support.',
+                    'pricing_type' => 'flat',
+                    'price' => 1500.00,
+                    'is_active' => true,
+                ],
+                [
+                    'name' => 'Roof Rack / Cargo Carrier',
+                    'description' => 'Extra luggage capacity for surfboards or group travel.',
+                    'pricing_type' => 'per_day',
+                    'price' => 300.00,
+                    'is_active' => true,
+                ],
+            ];
 
-        $createdAddons = [];
-        foreach ($addons as $addonData) {
-            $createdAddons[] = Addon::updateOrCreate(['name' => $addonData['name']], $addonData);
+            foreach ($addons as $addonData) {
+                Addon::create($addonData);
+            }
         }
+        $createdAddons = Addon::orderBy('id')->get();
 
-        // Vehicles
-        $vehicles = [
-            [
-                'name' => 'Toyota Innova 2.8 E',
-                'brand' => 'Toyota',
-                'model' => 'Innova',
-                'year' => 2024,
-                'plate_number' => 'KLX-1001',
-                'category' => 'MPV',
-                'transmission' => 'Automatic',
-                'seats' => 7,
-                'fuel_type' => 'Diesel',
-                'daily_rate' => 3500.00,
-                'status' => 'available',
-                'is_featured' => true,
-                'description' => 'Spacious 7-seater diesel MPV ideal for families and groups exploring Puerto Princesa, Sabang, and El Nido.',
-            ],
-            [
-                'name' => 'Toyota Vios 1.3 XLE',
-                'brand' => 'Toyota',
-                'model' => 'Vios',
-                'year' => 2024,
-                'plate_number' => 'KLX-1002',
-                'category' => 'Sedan',
-                'transmission' => 'Automatic',
-                'seats' => 5,
-                'fuel_type' => 'Gasoline',
-                'daily_rate' => 2000.00,
-                'status' => 'available',
-                'is_featured' => true,
-                'description' => 'Fuel-efficient and easy-to-drive sedan, great for city errands and couples touring Palawan.',
-            ],
-            [
-                'name' => 'Mitsubishi Xpander GLS',
-                'brand' => 'Mitsubishi',
-                'model' => 'Xpander',
-                'year' => 2024,
-                'plate_number' => 'KLX-1003',
-                'category' => 'MPV',
-                'transmission' => 'Automatic',
-                'seats' => 7,
-                'fuel_type' => 'Gasoline',
-                'daily_rate' => 3000.00,
-                'status' => 'available',
-                'is_featured' => true,
-                'description' => 'Modern 7-seater crossover MPV with high ground clearance and cold dual-zone air conditioning.',
-            ],
-            [
-                'name' => 'Toyota Fortuner 2.4 G',
-                'brand' => 'Toyota',
-                'model' => 'Fortuner',
-                'year' => 2023,
-                'plate_number' => 'KLX-1004',
-                'category' => 'SUV',
-                'transmission' => 'Automatic',
-                'seats' => 7,
-                'fuel_type' => 'Diesel',
-                'daily_rate' => 4500.00,
-                'status' => 'rented',
-                'is_featured' => false,
-                'description' => 'Rugged 7-seater SUV built for long highway drives and rough coastal roads across Palawan.',
-            ],
-            [
-                'name' => 'Toyota Hiace Commuter Deluxe',
-                'brand' => 'Toyota',
-                'model' => 'Hiace',
-                'year' => 2023,
-                'plate_number' => 'KLX-1005',
-                'category' => 'Van',
-                'transmission' => 'Manual',
-                'seats' => 15,
-                'fuel_type' => 'Diesel',
-                'daily_rate' => 5000.00,
-                'status' => 'available',
-                'is_featured' => false,
-                'description' => '15-seater passenger van for barkada trips, corporate outings, and airport transfers.',
-            ],
-            [
-                'name' => 'Toyota Wigo 1.0 G',
-                'brand' => 'Toyota',
-                'model' => 'Wigo',
-                'year' => 2024,
-                'plate_number' => 'KLX-1006',
-                'category' => 'Hatchback',
-                'transmission' => 'Automatic',
-                'seats' => 5,
-                'fuel_type' => 'Gasoline',
-                'daily_rate' => 1600.00,
-                'status' => 'maintenance',
-                'is_featured' => false,
-                'description' => 'Compact, budget-friendly hatchback perfect for solo travelers or quick Puerto Princesa city trips.',
-            ],
-        ];
+        // Vehicles (only seed if empty)
+        if (Vehicle::count() === 0) {
+            $vehicles = [
+                [
+                    'name' => 'Toyota Innova 2.8 E',
+                    'brand' => 'Toyota',
+                    'model' => 'Innova',
+                    'year' => 2024,
+                    'plate_number' => 'KLX-1001',
+                    'category' => 'MPV',
+                    'transmission' => 'Automatic',
+                    'seats' => 7,
+                    'fuel_type' => 'Diesel',
+                    'daily_rate' => 3500.00,
+                    'status' => 'available',
+                    'is_featured' => true,
+                    'description' => 'Spacious 7-seater diesel MPV ideal for families and groups exploring Puerto Princesa, Sabang, and El Nido.',
+                ],
+                [
+                    'name' => 'Toyota Vios 1.3 XLE',
+                    'brand' => 'Toyota',
+                    'model' => 'Vios',
+                    'year' => 2024,
+                    'plate_number' => 'KLX-1002',
+                    'category' => 'Sedan',
+                    'transmission' => 'Automatic',
+                    'seats' => 5,
+                    'fuel_type' => 'Gasoline',
+                    'daily_rate' => 2000.00,
+                    'status' => 'available',
+                    'is_featured' => true,
+                    'description' => 'Fuel-efficient and easy-to-drive sedan, great for city errands and couples touring Palawan.',
+                ],
+                [
+                    'name' => 'Mitsubishi Xpander GLS',
+                    'brand' => 'Mitsubishi',
+                    'model' => 'Xpander',
+                    'year' => 2024,
+                    'plate_number' => 'KLX-1003',
+                    'category' => 'MPV',
+                    'transmission' => 'Automatic',
+                    'seats' => 7,
+                    'fuel_type' => 'Gasoline',
+                    'daily_rate' => 3000.00,
+                    'status' => 'available',
+                    'is_featured' => true,
+                    'description' => 'Modern 7-seater crossover MPV with high ground clearance and cold dual-zone air conditioning.',
+                ],
+                [
+                    'name' => 'Toyota Fortuner 2.4 G',
+                    'brand' => 'Toyota',
+                    'model' => 'Fortuner',
+                    'year' => 2023,
+                    'plate_number' => 'KLX-1004',
+                    'category' => 'SUV',
+                    'transmission' => 'Automatic',
+                    'seats' => 7,
+                    'fuel_type' => 'Diesel',
+                    'daily_rate' => 4500.00,
+                    'status' => 'rented',
+                    'is_featured' => false,
+                    'description' => 'Rugged 7-seater SUV built for long highway drives and rough coastal roads across Palawan.',
+                ],
+                [
+                    'name' => 'Toyota Hiace Commuter Deluxe',
+                    'brand' => 'Toyota',
+                    'model' => 'Hiace',
+                    'year' => 2023,
+                    'plate_number' => 'KLX-1005',
+                    'category' => 'Van',
+                    'transmission' => 'Manual',
+                    'seats' => 15,
+                    'fuel_type' => 'Diesel',
+                    'daily_rate' => 5000.00,
+                    'status' => 'available',
+                    'is_featured' => false,
+                    'description' => '15-seater passenger van for barkada trips, corporate outings, and airport transfers.',
+                ],
+                [
+                    'name' => 'Toyota Wigo 1.0 G',
+                    'brand' => 'Toyota',
+                    'model' => 'Wigo',
+                    'year' => 2024,
+                    'plate_number' => 'KLX-1006',
+                    'category' => 'Hatchback',
+                    'transmission' => 'Automatic',
+                    'seats' => 5,
+                    'fuel_type' => 'Gasoline',
+                    'daily_rate' => 1600.00,
+                    'status' => 'maintenance',
+                    'is_featured' => false,
+                    'description' => 'Compact, budget-friendly hatchback perfect for solo travelers or quick Puerto Princesa city trips.',
+                ],
+            ];
 
-        $createdVehicles = [];
-        foreach ($vehicles as $v) {
-            $v['slug'] = Str::slug($v['name']);
-            $createdVehicles[] = Vehicle::updateOrCreate(['plate_number' => $v['plate_number']], $v);
+            foreach ($vehicles as $v) {
+                $v['slug'] = Str::slug($v['name']);
+                Vehicle::create($v);
+            }
         }
+        $createdVehicles = Vehicle::orderBy('id')->get();
 
         // Sample bookings if none exist
         if (Booking::count() === 0) {
