@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --color-kalix-red: #DC2626;
+    --color-kalix-red-dark: #B91C1C;
+    --color-kalix-red-soft: #FEF2F2;
+    --color-kalix-black: #0A0A0A;
+    --color-kalix-dark: #141414;
+    --color-kalix-surface: #F8F9FA;
+    --color-kalix-border: #E5E7EB;
+}
+
+@layer base {
+    body {
+        font-family: var(--font-sans);
+        color: #111827;
+        background-color: #FFFFFF;
+        -webkit-font-smoothing: antialiased;
+    }
+}
