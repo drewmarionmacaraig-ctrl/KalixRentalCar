@@ -36,9 +36,9 @@ class VehicleController extends Controller
 
     public function create(): View
     {
-        return view('admin.vehicles.form', [
+        return view('admin.vehicles.form', array_merge([
             'vehicle' => new Vehicle(['status' => 'available', 'transmission' => 'Automatic', 'seats' => 5, 'year' => date('Y')]),
-        ]);
+        ], $this->getFormOptions()));
     }
 
     public function store(Request $request): RedirectResponse
@@ -70,9 +70,9 @@ class VehicleController extends Controller
     {
         $vehicle->load('images');
 
-        return view('admin.vehicles.form', [
+        return view('admin.vehicles.form', array_merge([
             'vehicle' => $vehicle,
-        ]);
+        ], $this->getFormOptions()));
     }
 
     public function update(Request $request, Vehicle $vehicle): RedirectResponse
@@ -122,7 +122,7 @@ class VehicleController extends Controller
             'year' => ['required', 'integer', 'min:1995', 'max:' . (date('Y') + 2)],
             'plate_number' => ['required', 'string', 'max:30', 'unique:vehicles,plate_number,' . $ignoreId],
             'category' => ['required', 'string', 'max:40'],
-            'transmission' => ['required', 'in:Automatic,Manual'],
+            'transmission' => ['required', 'string', 'max:40'],
             'seats' => ['required', 'integer', 'min:2', 'max:30'],
             'fuel_type' => ['required', 'string', 'max:30'],
             'daily_rate' => ['required', 'numeric', 'min:100'],
@@ -131,5 +131,25 @@ class VehicleController extends Controller
             'primary_image' => ['nullable', 'image', 'max:5120'],
             'gallery_images.*' => ['nullable', 'image', 'max:5120'],
         ]);
+    }
+
+    private function getFormOptions(): array
+    {
+        $categories = collect(['Sedan', 'MPV', 'SUV', 'Van', 'Pickup', 'Hatchback'])
+            ->merge(Vehicle::query()->distinct()->pluck('category'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $transmissions = collect(['Automatic', 'Manual', 'CVT'])
+            ->merge(Vehicle::query()->distinct()->pluck('transmission'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        return [
+            'categories' => $categories,
+            'transmissions' => $transmissions,
+        ];
     }
 }

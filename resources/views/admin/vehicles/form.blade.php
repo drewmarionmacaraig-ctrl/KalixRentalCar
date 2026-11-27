@@ -32,20 +32,69 @@
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Year *</label>
                     <input type="number" name="year" value="{{ old('year', $vehicle->year) }}" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Category *</label>
-                    <select name="category" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
-                        @foreach(['Sedan', 'MPV', 'SUV', 'Van', 'Pickup', 'Hatchback'] as $cat)
-                            <option value="{{ $cat }}" @selected(old('category', $vehicle->category) === $cat)>{{ $cat }}</option>
-                        @endforeach
+                <div x-data="{
+                        categories: @js($categories),
+                        selectedCategory: @js(old('category', $vehicle->category ?? $categories->first())),
+                        addingCategory: false,
+                        newCategory: '',
+                        addCategory() {
+                            const val = this.newCategory.trim();
+                            if (!val) return;
+                            if (!this.categories.includes(val)) this.categories.push(val);
+                            this.selectedCategory = val;
+                            this.newCategory = '';
+                            this.addingCategory = false;
+                        }
+                     }">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-semibold text-gray-700">Category *</label>
+                        <button type="button" @click="addingCategory = !addingCategory" class="text-[11px] font-semibold text-red-600 hover:underline cursor-pointer">
+                            <span x-text="addingCategory ? 'Cancel' : '+ Add new'"></span>
+                        </button>
+                    </div>
+                    <select name="category" x-model="selectedCategory" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
+                        <template x-for="cat in categories" :key="cat">
+                            <option :value="cat" x-text="cat" :selected="cat === selectedCategory"></option>
+                        </template>
                     </select>
+                    <div x-show="addingCategory" class="mt-2 flex items-center gap-2">
+                        <input type="text" x-model="newCategory" @keydown.enter.prevent="addCategory()" placeholder="e.g. Crossover, Minibus" class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs focus:border-red-600 focus:ring-red-600">
+                        <button type="button" @click="addCategory()" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold cursor-pointer">
+                            Add
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Transmission *</label>
-                    <select name="transmission" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
-                        <option value="Automatic" @selected(old('transmission', $vehicle->transmission) === 'Automatic')>Automatic</option>
-                        <option value="Manual" @selected(old('transmission', $vehicle->transmission) === 'Manual')>Manual</option>
+                <div x-data="{
+                        transmissions: @js($transmissions),
+                        selectedTransmission: @js(old('transmission', $vehicle->transmission ?? $transmissions->first())),
+                        addingTransmission: false,
+                        newTransmission: '',
+                        addTransmission() {
+                            const val = this.newTransmission.trim();
+                            if (!val) return;
+                            if (!this.transmissions.includes(val)) this.transmissions.push(val);
+                            this.selectedTransmission = val;
+                            this.newTransmission = '';
+                            this.addingTransmission = false;
+                        }
+                     }">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-semibold text-gray-700">Transmission *</label>
+                        <button type="button" @click="addingTransmission = !addingTransmission" class="text-[11px] font-semibold text-red-600 hover:underline cursor-pointer">
+                            <span x-text="addingTransmission ? 'Cancel' : '+ Add new'"></span>
+                        </button>
+                    </div>
+                    <select name="transmission" x-model="selectedTransmission" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
+                        <template x-for="tr in transmissions" :key="tr">
+                            <option :value="tr" x-text="tr" :selected="tr === selectedTransmission"></option>
+                        </template>
                     </select>
+                    <div x-show="addingTransmission" class="mt-2 flex items-center gap-2">
+                        <input type="text" x-model="newTransmission" @keydown.enter.prevent="addTransmission()" placeholder="e.g. CVT, Semi-Automatic" class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs focus:border-red-600 focus:ring-red-600">
+                        <button type="button" @click="addTransmission()" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold cursor-pointer">
+                            Add
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Seats *</label>

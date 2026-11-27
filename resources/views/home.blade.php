@@ -63,11 +63,9 @@
                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Category</label>
                     <select name="category" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-red-600 focus:ring-red-600">
                         <option value="">All vehicle types</option>
-                        <option value="Sedan">Sedan</option>
-                        <option value="MPV">MPV (7-Seater)</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Van">Van (15-Seater)</option>
-                        <option value="Hatchback">Hatchback</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat }}">{{ $cat }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>

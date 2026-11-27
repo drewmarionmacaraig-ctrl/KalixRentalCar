@@ -48,8 +48,9 @@
                             <label class="block text-xs font-semibold text-gray-700 mb-1">Transmission</label>
                             <select name="transmission" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-600 focus:ring-red-600">
                                 <option value="">Any</option>
-                                <option value="Automatic" @selected(request('transmission') === 'Automatic')>Automatic</option>
-                                <option value="Manual" @selected(request('transmission') === 'Manual')>Manual</option>
+                                @foreach($transmissions as $tr)
+                                    <option value="{{ $tr }}" @selected(request('transmission') === $tr)>{{ $tr }}</option>
+                                @endforeach
                             </select>
                         </div>
 

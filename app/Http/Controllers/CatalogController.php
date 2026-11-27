@@ -62,11 +62,13 @@ class CatalogController extends Controller
             }
         }
 
-        $categories = Vehicle::query()->distinct()->pluck('category');
+        $categories = Vehicle::query()->distinct()->orderBy('category')->pluck('category');
+        $transmissions = Vehicle::query()->distinct()->orderBy('transmission')->pluck('transmission');
 
         return view('catalog.index', [
             'vehicles' => $vehicles,
             'categories' => $categories,
+            'transmissions' => $transmissions,
             'pickup' => $pickup,
             'return' => $return,
         ]);

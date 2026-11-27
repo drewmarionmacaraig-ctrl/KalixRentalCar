@@ -16,8 +16,11 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
+        $categories = Vehicle::query()->distinct()->orderBy('category')->pluck('category');
+
         return view('home', [
             'featuredVehicles' => $featuredVehicles,
+            'categories' => $categories,
         ]);
     }
 }
